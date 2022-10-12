@@ -1,6 +1,6 @@
 $(document).ready(function () {
-    var previewURL = "http://127.0.0.1:5000/preview";
-    var predictURL = "http://127.0.0.1:5000/predict";
+    var previewURL = "https://demand-forecasting-webapp.herokuapp.com/preview";
+    var predictURL = "https://demand-forecasting-webapp.herokuapp.com/predict";
     var dataURL;
     var extension;
     
