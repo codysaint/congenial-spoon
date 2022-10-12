@@ -1,2 +1,1 @@
-# congenial-spoon
-Files relted to demand forecasting
+Files related to demand forecasting
