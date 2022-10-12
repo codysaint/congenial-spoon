@@ -52,7 +52,7 @@ def getPredResult(df):
 ###############################################################################
 ###  Render Index html  ###
 ###############################################################################
-@app.route("/", methods=['GET'])
+@app.route("/")
 @cross_origin(supports_credentials=True)
 def index():
     print(" === Displaying home page === ")
