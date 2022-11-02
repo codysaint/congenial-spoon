@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 	<title>Demand Forecasting</title>
-	<link rel="stylesheet" href="/css/bootstrap-3.3.5.min.css">
-    	<link rel="stylesheet" type="text/css" href="/css/myStyle.css">
+	<link rel="stylesheet" href="/css/bootstrap-3.3.5.min.css" >
+    <link rel="stylesheet" type="text/css" href="/css/myStyle.css">
 	<link rel="shortcut icon" href="/images/df.png" />
 	<link rel="stylesheet" href="/css/font-4.7.0.min.css">
 	<link rel="stylesheet" href="/js/excel-like-filter/excel-bootstrap-table-filter-style.css" />
@@ -52,7 +52,7 @@
 	<div id="preview" class="tab-pane fade in active" role="tabpanel" aria-labelledby="preview-tab">
 		<br /><br />
 		<div class="row">
-			<div class="jumbotron col-md-6 col-md-offset-3 border">
+			<div class="jumbotron col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 border">
 				<div class="form-group-lg">
 				  <form id="upload-file" method="post" enctype="multipart/form-data">
 					  <input type="file" class="file" name="file">
@@ -64,14 +64,14 @@
 						 <button type="button" class="btn" id ="buttonPreview" style="margin-left:4%; border-radius: 20px;" disabled>Preview Data</button>
 						</span>
 					  </div>
-				  </form>			
+				  </form>
 				</div>
 			  </div>
 		</div>
 			
 		<div class="row">
 			<img id="loader" class="img-responsive center-block" src="/images/spinner.gif" style="height: 45px; margin-top: 7%;"/><br>
-			<div class="col-md-8 col-md-offset-2" id="divTablePreview">
+			<div class="col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1" id="divTablePreview">
 				<br> <br>
 				<div class="card">
 					<table class="table table-responsive table-hover" id="tablePreview">
@@ -84,7 +84,7 @@
 					
 					</table>
 				</div>
-	
+				<br>
 			</div>
 		</div>
     </div>
@@ -146,19 +146,20 @@
 		<div id="bivariate" class="tab-pane fade" role="tabpanel" aria-labelledby="bivariate-tab">
 			<br>
 			<div class = "overflowDiv">
+				<div class="row">
+					<div class="col-md-10">
+						<label class="text-warning fa fa-2x" >Store 1 and item - Brown Rice & Lentils</label>
+						<img src="/images/Bivariate/store1_brownRice.png" class="img-responsive img-rounded" />
+						<h4 class="text-left bg-warning" style="padding: 12px 12px;">✴️ From the data, it can be seen that the sales of Brown Rice
+							& Lentils for the year 2013 is less during August to December.</h4>
+					</div>
+				</div>
 				<br>
 				<div class="row">
 					<div class="col-md-10">
 						<label class="text-warning fa fa-2x" >Store 1 and different items of same store - sales plot</label>
 						<img src="/images/Bivariate/store_item_sales.png" class="img-responsive img-rounded" />
-						<p></p>
-					</div>
-				</div>
-				<br>
-				<div class="row">					
-					<div class="col-md-10">
-						<label class="text-warning fa fa-2x">Store 3 and Item 10 - High Fiber Tomato Basil Soup, sales plot</label>
-						<img src="/images/Bivariate/store1_item10.png" class="img-responsive img-rounded" />
+						
 					</div>
 				</div>
 				<br>
@@ -183,7 +184,7 @@
 						<label class="text-warning fa fa-2x">Sales per Store per Year</label>
 						<img src="/images/Multivariate/store_vs_sales.png" class="img-responsive" />
 						<h4 class="text-left bg-warning" style="padding: 12px 12px;">✴️ From the data, it can be seen that the sales of store 
-							is increasing on annual basis. </h4>
+							is increasing on annual basis.</h4>
 					</div>
 				</div>
 				<br><br>				
@@ -212,7 +213,7 @@
 	<div id="prediction" class="tab-pane fade tab-content" role="tabpanel" aria-labelledby="prediction-tab">
 		<br /><br />
 		<div class="row">
-			<div class="jumbotron col-md-6 col-md-offset-3 border">
+			<div class="jumbotron col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 border">
 				<div class="form-group-lg">
 					<form id="predict-file" method="post" enctype="multipart/form-data">
 						<input type="file" class="file" name="file">
@@ -221,20 +222,21 @@
 						<input type="text" class="form-control " disabled placeholder="Upload File">
 						<span class="input-group-btn">
 							<button class="btn" id="browsePrediction" type="button" ><i class="glyphicon glyphicon-search"></i> Browse File</button>
-						<button type="button" class="btn " id ="buttonPrediction" style="margin-left:4%; border-radius: 20px;" disabled>Predict Result</button>
+						<button type="button" class="btn" id ="buttonPrediction" disabled>Predict Result</button>
 						</span>
 						</div>
 					</form>
 						
 				</div>
 			</div>
-		</div>
+		</div>	
+		
 		
 		
 		<div class = "row">
 			<img id="loader_predict" class="img-responsive center-block" src="/images/spinner.gif" style="height: 45px; margin-top: 7%;"/>
 		
-			<div class="col-md-8 col-md-offset-2" id="divTablePredict">
+			<div class="col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1" id="divTablePredict">
 				<br> <br>
 				<div class="card">
 		
@@ -248,9 +250,106 @@
 						
 					</table>
 
+					<button type="button" class="btn pull-right" id ="buttonDownloadPredictedCSV">Download Forecasts</button>
+
 				</div>
 			</div>
 		</div>
+
+		<div class="row">
+			<br><br>
+			<div class="col-md-8 col-md-offset-3 col-sm-8 col-sm-offset-3">
+				<div id="form-box" class="card" style="user-select: auto;">
+					<label for="heading" class="text-muted" style="user-select: auto; font-size: 1.3em;">Filter Results</label><br><br>
+					<form id="filter-result" method="POST" enctype="multipart/form-data" style="user-select: auto;">
+						<div class="form-group col-md-3 col-sm-3" style="user-select: auto;">
+							<label for="date" style="user-select: auto;">Date: </label>
+							<!-- <input type="text" class="form-control" id="dateInput" name="date" style="user-select: auto;"> -->
+							<select name="date" id="dateInput" style="width: 120px;
+							outline: none;
+							border: 1px solid #fff;
+							padding: 0.5rem;
+							font-size: 1.4rem;
+							border-radius: 0.7rem;
+							box-shadow: 0 1px 4px rgb(146 161 176 / 15%);
+							cursor: pointer;">
+								<option disabled selected>Select date from</option>
+								<option value="01-01-2018">01-01-2018</option>
+							  </select>
+						</div>
+						<div class="form-group col-md-3 col-sm-3" style="user-select: auto;">
+							<label for="item" style="user-select: auto;">Item: </label>
+							<!-- <input type="text" class="form-control" id="itemInput" name="item" style="user-select: auto;"> -->
+							<select name="item" id="dateInput" style="width: 120px;
+							outline: none;
+							border: 1px solid #fff;
+							padding: 0.5rem;
+							font-size: 1.4rem;
+							border-radius: 0.7rem;
+							box-shadow: 0 1px 4px rgb(146 161 176 / 15%);
+							cursor: pointer;">
+								<option disabled selected>Select item</option>
+								<option value="Moisturizing Cold Cream">Moisturizing Cold Cream</option>
+								<option value="cold drinks">Cold Drinks</option>
+								<option value="Air Conditioner">Air Conditioner</option>
+								<option value="Brown Rice & Lentils">Brown Rice & Lentils</option>
+							  </select>
+						</div>
+						<div class="form-group col-md-3 col-sm-3" style="user-select: auto;">
+							<label for="store" style="user-select: auto;">Store: </label>
+							<!-- <input type="text" class="form-control" id="storeInput" name="store" style="user-select: auto;"> -->
+							<select name="store" id="storeInput" style="width: 120px;
+							outline: none;
+							border: 1px solid #fff;
+							padding: 0.5rem;
+							font-size: 1.4rem;
+							border-radius: 0.7rem;
+							box-shadow: 0 1px 4px rgb(146 161 176 / 15%);
+							cursor: pointer;">
+								<option disabled selected>Select store</option>
+								<option value="store_1">Store 1</option>
+								<option value="store_2">Store 2</option>
+								<option value="store_3">Store 3</option>
+								<option value="store_4">Store 4</option>
+							  </select>
+						</div>
+						<div class="button-group col-md-3" style="user-select: auto; padding-top: 3%;">
+							<button id="btnSend" type="button" class="btn pull-right" style="user-select: auto;">Send</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class = "row">
+			<img id="loader_filter" class="img-responsive center-block" src="/images/spinner.gif" style="height: 45px; margin-top: 7%;"/>
+		
+			<div class="col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1" id="divTableFilter">
+				<br> <br>
+				<div class="card">
+		
+					<table class="table table-responsive table-hover" id="tableFilter">
+					
+						<thead id="tableFilterHeader">
+						</thead>
+						
+						<tbody id="tableFilterBody"> 
+						</tbody>
+						
+					</table>
+
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1">
+				<div class="card" id="displayPredictPlot">
+				</div>
+				<br><br>
+			</div>
+		</div>
+
 
 	</div>
 		
