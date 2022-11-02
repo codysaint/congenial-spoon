@@ -166,7 +166,7 @@ def downloadCSV():
     predicted_filename = 'output/predict_result.csv'
     latest_data = forecast_df.copy()
     latest_data.to_csv(predicted_filename, index= False)
-    return send_file(predicted_filename, attachment_filename= predicted_filename.split('/')[-1])
+    return send_file(predicted_filename,mimetype="text/csv", download_name= predicted_filename.split('/')[-1])
 
 ###############################################################################
 if __name__ == "__main__":
