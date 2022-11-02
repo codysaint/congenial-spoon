@@ -3,9 +3,11 @@ import time
 import joblib
 import numpy as np
 import os, webbrowser
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('Agg')
 
-from flask import Flask, request, jsonify
-from flask import render_template
+from flask import Flask, request, jsonify, send_file, render_template
 from flask_cors import CORS, cross_origin
 
 ###############################################################################
@@ -14,16 +16,19 @@ app = Flask(__name__,
             static_folder='static',
             template_folder='templates')
 
+
 CORS(app, support_credentials=True)
 app.config['SECRET_KEY'] =  os.urandom(24)
 
 
 def getPredResult(df):
+    global forecast_df
+    global predict_df
+
     print('\n ====== Predict function ======= \n')
-    target_var = 'sales'
     
     #Load model pickle file 
-    mdl_path = './model/demand_forecast_mdl_29092022.pkl'
+    mdl_path = 'model/demand_forecast_mdl_29092022.pkl'
     demand_forecast_mdl = joblib.load(mdl_path)
 
     cols = [col for col in df.columns if col not in ['date', 'id', "sales", "year", "store_name", "item_name", "month"]]
@@ -35,24 +40,24 @@ def getPredResult(df):
     #Get Predictions    
     test_preds = demand_forecast_mdl.predict(X_test, num_iteration=demand_forecast_mdl.best_iteration)
 
-    predict_output_path = "./output/sales_forecast_3mnths.csv"
+    # predict_output_path = "./output/sales_forecast_3mnths.csv"
 
     forecast_df = pd.DataFrame({"date":test["date"],
                             "month":test["month"],
                             "store":test["store_name"],
                             "item":test["item_name"],
-                            "sales":np.ceil(test_preds)
+                            "sales":np.round(test_preds)
                             })
-  
-    
-    response = {'status': 'success', 'predResult':forecast_df.sample(frac=0.5).to_dict(orient = 'records')}
+
+    response = {'status': 'success', 'predResult':forecast_df.sample(frac=0.1).to_dict(orient = 'records')}
     
     return response
+
 
 ###############################################################################
 ###  Render Index html  ###
 ###############################################################################
-@app.route("/")
+@app.route("/", methods=['GET'])
 @cross_origin(supports_credentials=True)
 def index():
     print(" === Displaying home page === ")
@@ -60,11 +65,10 @@ def index():
     return render_template('index.html')
 
 ###############################################################################
-###  Preview API  ###
-###############################################################################
 @app.route("/preview", methods=['POST'])
 @cross_origin(supports_credentials=True)
 def preview_api():
+    print('\n ===== Preview ===== \n')
     start_time = time.time()
     file_path = 'output/test_preview.csv'
     
@@ -74,16 +78,17 @@ def preview_api():
 
     dataset = pd.read_csv(file_path)
   
-    response = {'status': 'success','dataset': dataset.sample(100).to_dict(orient = 'records')}
+    response = {'status': 'success','dataset': dataset.sample(1000).to_dict(orient = 'records')}
+    
     end_time = time.time()
     print('Time Required : ', end_time -start_time)
-    return jsonify(response)
-###############################################################################
-###  Predict API  ###
+    return response
+
 ###############################################################################
 @app.route("/predict", methods=['POST'])
 @cross_origin(supports_credentials=True)
 def predict_api():
+    print('\n ===== Predict ===== \n')
     start_time = time.time()
     file_path = 'output/test_pred.csv'
     
@@ -96,15 +101,85 @@ def predict_api():
     response = getPredResult(dataset)
     end_time = time.time()
     print('Time Required: ', end_time -start_time)
-    return jsonify(response)
+    return response
 
 ###############################################################################
-if __name__ == "__main__":   
+@app.route("/filter", methods=['POST'])
+@cross_origin(supports_credentials=True)
+def filter_api():
+    print('\n ===== filter ===== \n')
+
+    filter_csv = 'input/filter_result.csv'
+    start_time = time.time()
+
+    df = pd.read_csv(filter_csv)
+
+    filter_df = df.copy()
+    filter_df['sales_round'] = filter_df['sales'].map(lambda x : np.round(x))
+    filter_df.drop(['sales'], axis=1, inplace=True)
+
+    filter_df.rename(columns={'sales_round': 'sales'}, inplace=True)
+
+    # filter_df = predict_df.copy()
+    filter_plot_df = df.copy()
+
+    date = str(request.form.get("date"))
+    item = str(request.form.get("item"))
+    store = str(request.form.get("store"))
+
+    plot_name = f'{store}_{item}.jpeg'
+
+    plot_path = f'static/images/plots/{plot_name}'
+
+    print(date, item, store)
+
+    filter_df = filter_df[(filter_df.date >= date) & (filter_df.item == item) & (filter_df.store == store)]
+
+    filter_plot_df = filter_plot_df[(filter_plot_df.date >= date) & (filter_plot_df.item == item) & (filter_plot_df.store == store)]
+    filter_plot_df.set_index("date").sales.plot(color = "green",
+                                             legend=True,
+                                             figsize=(20, 10),
+                                             label = f"{store}, {item}")
+
+    # plt.legend(bbox_to_anchor=(1., 1.), loc='upper right', ncol=1, frameon=True)
+    plt.xticks(fontsize=13)
+    plt.yticks(fontsize=13)
+    plt.xticks(rotation =30)
+    plt.tight_layout()
+    plt.savefig(plot_path, bbox_inches='tight')
+    plt.close()
+
+    response = {'status': 'success','filterDf': filter_df.to_dict(orient = 'records'), 'plot_path': plot_path}
+
+    end_time = time.time()
+    print('Time Required: ', end_time -start_time)
+
+    return response
+
+############################################################################################
+######### GET API for Downloads
+############################################################################################
+@app.route('/downloadPredictedCSV', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def downloadCSV():
+    print('Enter to download latest data...')
+    predicted_filename = 'output/predict_result.csv'
+    latest_data = forecast_df.copy()
+    latest_data.to_csv(predicted_filename, index= False)
+    return send_file(predicted_filename, attachment_filename= predicted_filename.split('/')[-1])
+
+###############################################################################
+if __name__ == "__main__":
     # chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
     # webbrowser.get(chrome_path).open('file://' + os.path.realpath('templates/index.html'))
     
-    app.run(debug=True)
+    app.run(port=5000)
     
 ###############################################################################
 ###############################################################################
 ###############################################################################
+
+
+# store_1, coconut lotion
+# store_5, air conditioner
+# store_10, cold drinks
