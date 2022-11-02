@@ -173,13 +173,8 @@ if __name__ == "__main__":
     # chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
     # webbrowser.get(chrome_path).open('file://' + os.path.realpath('templates/index.html'))
     
-    app.run(port=5000)
+    app.run(debug=True)
     
 ###############################################################################
 ###############################################################################
 ###############################################################################
-
-
-# store_1, coconut lotion
-# store_5, air conditioner
-# store_10, cold drinks
