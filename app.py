@@ -20,10 +20,10 @@ app = Flask(__name__,
 CORS(app, support_credentials=True)
 app.config['SECRET_KEY'] =  os.urandom(24)
 
+forecast_df = pd.DataFrame()
 
 def getPredResult(df):
     global forecast_df
-    global predict_df
 
     print('\n ====== Predict function ======= \n')
     
@@ -120,7 +120,6 @@ def filter_api():
 
     filter_df.rename(columns={'sales_round': 'sales'}, inplace=True)
 
-    # filter_df = predict_df.copy()
     filter_plot_df = df.copy()
 
     date = str(request.form.get("date"))
