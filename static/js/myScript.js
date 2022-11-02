@@ -1,5 +1,5 @@
 $(document).ready(function () {
-	var mainURL = 'http://127.0.0.1:5000/';
+	var mainURL = 'https://demand-forecasting-webapp.herokuapp.com/';
     var previewURL = mainURL + 'preview';
     var predictURL = mainURL + 'predict';
 	var filterURL = mainURL + 'filter';
