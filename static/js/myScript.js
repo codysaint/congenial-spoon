@@ -1,13 +1,19 @@
 $(document).ready(function () {
-    var previewURL = "https://demand-forecasting-webapp.herokuapp.com/preview";
-    var predictURL = "https://demand-forecasting-webapp.herokuapp.com/predict";
-    var dataURL;
-    var extension;
+	var mainURL = 'http://127.0.0.1:5000/';
+    var previewURL = mainURL + 'preview';
+    var predictURL = mainURL + 'predict';
+	var filterURL = mainURL + 'filter';
+	var downloadPredictedCSVURL = mainURL + 'downloadPredictedCSV';
     
     $('#loader').hide();
+	$('#loader_predict').hide();
+	$('#loader_filter').hide();
 	$('#divTablePreview').hide();
-    $('#loader_predict').hide();
 	$('#divTablePredict').hide();
+	$('#divTableFilter').hide();
+	$('#form-box').hide();
+	$('#buttonDownloadPredictedCSV').hide();
+	$('#displayPredictPlot').html("");
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // $('img').on('click', function () {
@@ -16,6 +22,29 @@ $(document).ready(function () {
 	// 			$(".img-responsive").attr("src", image);
 	// 		});
 	// 	});
+
+	// request object to flask API
+    function requestObjectFunc(url, method){
+        var settings = {
+			  "async": true,
+			  "crossDomain": true,
+			  "url": url,
+			  "method": method,
+			  "headers": {
+				"content-type": "application/json",
+				"cache-control": "no-cache"
+			  },
+			  "processData": false,
+			  "error": function (xhr, ajaxOptions, thrownError) {
+						if(xhr.status != 200)
+							{
+								alert('Error in Web service');
+                                $('#loader').hide();
+							}
+						}
+			}
+        return settings
+    }
 
 		
 	// browse file action
@@ -64,9 +93,12 @@ $(document).ready(function () {
 		$('#tablePreviewHeader').html("");
 
 		   var col_key = Object.keys(objArray[0])
+		   var total_rows = Object.keys(objArray).length;
+		   console.log("col keys length: ", col_key.length);
 		   console.log("col key: ", col_key);
+		   console.log("Array length: ", Object.keys(objArray).length);
+		   
 		   $('#loader').hide();
-		   console.log(col_key.length);
 			
 			
 		   $('#tablePreviewHeader').append('<th><b>S.N.</b></th>');
@@ -74,7 +106,7 @@ $(document).ready(function () {
 		   {
 			   $('#tablePreviewHeader').append('<th><b>'+col_key[j]+'</b></th>');
 		   }
-           for(var i=0; i<100; i++)
+           for(var i=0; i<total_rows; i++)
            {
                     /*$('#tablePreview').append('<tr><td><b>'+parseInt(i+1)+'</b></td><td>'+objArray[i][col_key[0]]+'</td><td>'+objArray[i][col_key[1]]+'</td><td>'+objArray[i][col_key[2]]+'</td><td>'+objArray[i][col_key[3]]+'</td><td>'+objArray[i][col_key[4]]+'</td><td>'+objArray[i][col_key[5]]+'</td><td>'+objArray[i][col_key[6]]+'</td><td>'+objArray[i][col_key[7]]+'</td><td>'+objArray[i][col_key[8]]+'</td><td>'+objArray[i][col_key[9]]+'</td><td>'+objArray[i][col_key[10]]+'</td><td>'+objArray[i][col_key[11]]+'</td><td>'+objArray[i][col_key[12]]+'</td><td>'+objArray[i][col_key[13]]+'</td><td>'+objArray[i][col_key[14]]+'</td><td>'+objArray[i][col_key[15]]+'</td><td>'+objArray[i][col_key[16]]+'</td><td>'+objArray[i][col_key[17]]+'</td><td>'+objArray[i][col_key[18]]+'</td><td>'+objArray[i][col_key[19]]+'</td><td>'+objArray[i][col_key[20]]+'</td></tr>');*/
 				   var objArr_row ='';
@@ -82,9 +114,9 @@ $(document).ready(function () {
 				   
 				   for(j=0;j<col_key.length;j++)
 				   {
-					   console.log(objArray[i][col_key[j]]);
-					   console.log(j);
-					   console.log(col_key[j]);
+					//    console.log(objArray[i][col_key[j]]);
+					//    console.log(j);
+					//    console.log(col_key[j]);
 					   
 					   var row_val = row_obj[col_key[j]];
 					   objArr_row = objArr_row + '<td>'+row_val+'</td>';
@@ -118,6 +150,17 @@ $(document).ready(function () {
 		$('#tablePredictBody').html("");
 		$('#tablePredictHeader').html("");
 
+		$('#buttonDownloadPredictedCSV').hide()
+
+		$('#loader_filter').hide();
+		$('#divTableFilter').hide();
+		$('#tableFilterBody').html("");
+		$('#tableFilterHeader').html("");
+		$('#form-box').hide();
+
+		$('#displayPredictPlot').html("");
+
+
         var form_data = new FormData($('#predict-file')[0]);
         console.log('Form data : ',form_data)
 		
@@ -133,7 +176,10 @@ $(document).ready(function () {
                 dataSummaryObj = data
                 //console.log(data);
                 $('#loader_predict').hide();
-                predictResult(data['predResult'])
+                predictResult(data['predResult']);
+				$('#buttonDownloadPredictedCSV').show();
+				$('#form-box').show();
+				$('#divTableFilter').show();
             }
         });         
 	});
@@ -141,6 +187,35 @@ $(document).ready(function () {
 	// $(document).on('click', '#showResult', function(){
 	// 	$('#myModal').show();
 	// });
+
+	// on click of Send button
+	$(document).on('click', '#btnSend', function(){
+        $('#loader_filter').show();
+		$('#divTableFilter').show();
+		$('#tableFilterBody').html("");
+		$('#tableFilterHeader').html("");
+
+		$('#displayPredictPlot').html("");
+
+        var form_data = new FormData($('#filter-result')[0]);
+        console.log('Send button Form data : ',form_data)
+		
+        $.ajax({
+            type: 'POST',
+            url: filterURL,
+            data: form_data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(data) {
+                console.log(data)
+                //console.log(data);
+                $('#loader_filter').hide();
+                filterResult(data['filterDf']);
+				showPredictedPlot(data['plot_path']);
+            }
+        });         
+	});
 
 	
 	// show the prediction response from API in UI
@@ -151,14 +226,16 @@ $(document).ready(function () {
 		$('#tablePredictHeader').html("");
 		
 		var col_key = Object.keys(data[0])
-		console.log(data[0]);
+		var total_rows = Object.keys(data).length;
+		console.log("col key: ", col_key);
+		console.log("Array length: ", total_rows);
 		
 		$('#tablePredictHeader').append('<th><b>S.N.</b></th>');
 		   for(j=0;j<col_key.length;j++)
 		   {
 			   $('#tablePredictHeader').append('<th><b>'+col_key[j]+'</b></th>');
 		   }
-           for(var i=0; i<1000; i++)
+           for(var i=0; i<total_rows; i++)
            {
                     /*$('#tablePreview').append('<tr><td><b>'+parseInt(i+1)+'</b></td><td>'+objArray[i][col_key[0]]+'</td><td>'+objArray[i][col_key[1]]+'</td><td>'+objArray[i][col_key[2]]+'</td><td>'+objArray[i][col_key[3]]+'</td><td>'+objArray[i][col_key[4]]+'</td><td>'+objArray[i][col_key[5]]+'</td><td>'+objArray[i][col_key[6]]+'</td><td>'+objArray[i][col_key[7]]+'</td><td>'+objArray[i][col_key[8]]+'</td><td>'+objArray[i][col_key[9]]+'</td><td>'+objArray[i][col_key[10]]+'</td><td>'+objArray[i][col_key[11]]+'</td><td>'+objArray[i][col_key[12]]+'</td><td>'+objArray[i][col_key[13]]+'</td><td>'+objArray[i][col_key[14]]+'</td><td>'+objArray[i][col_key[15]]+'</td><td>'+objArray[i][col_key[16]]+'</td><td>'+objArray[i][col_key[17]]+'</td><td>'+objArray[i][col_key[18]]+'</td><td>'+objArray[i][col_key[19]]+'</td><td>'+objArray[i][col_key[20]]+'</td></tr>');*/
 				   var objArr_row ='';
@@ -172,9 +249,85 @@ $(document).ready(function () {
 				   $('#tablePredictBody').append('<tr><td><b>'+parseInt(i+1)+'</td>'+objArr_row+'</tr>');
            }
 		    $('#divTablePredict').show();
+			
 
 		$('#tablePredict').excelTableFilter();
 		
 		
     }
+
+	function filterResult(data)
+	{ 
+		console.log(" \n ==== Filter Result ==== \n ")
+		$('#tableFilterBody').html("");
+		$('#tableFilterHeader').html("");
+		
+		var col_key = Object.keys(data[0])
+		var total_rows = Object.keys(data).length;
+		console.log("col key: ", col_key);
+		console.log("Array length: ", total_rows);
+		
+		$('#tableFilterHeader').append('<th><b>S.N.</b></th>');
+		   for(j=0;j<col_key.length;j++)
+		   {
+			   $('#tableFilterHeader').append('<th><b>'+col_key[j]+'</b></th>');
+		   }
+           for(var i=0; i<total_rows; i++)
+           {
+                    /*$('#tablePreview').append('<tr><td><b>'+parseInt(i+1)+'</b></td><td>'+objArray[i][col_key[0]]+'</td><td>'+objArray[i][col_key[1]]+'</td><td>'+objArray[i][col_key[2]]+'</td><td>'+objArray[i][col_key[3]]+'</td><td>'+objArray[i][col_key[4]]+'</td><td>'+objArray[i][col_key[5]]+'</td><td>'+objArray[i][col_key[6]]+'</td><td>'+objArray[i][col_key[7]]+'</td><td>'+objArray[i][col_key[8]]+'</td><td>'+objArray[i][col_key[9]]+'</td><td>'+objArray[i][col_key[10]]+'</td><td>'+objArray[i][col_key[11]]+'</td><td>'+objArray[i][col_key[12]]+'</td><td>'+objArray[i][col_key[13]]+'</td><td>'+objArray[i][col_key[14]]+'</td><td>'+objArray[i][col_key[15]]+'</td><td>'+objArray[i][col_key[16]]+'</td><td>'+objArray[i][col_key[17]]+'</td><td>'+objArray[i][col_key[18]]+'</td><td>'+objArray[i][col_key[19]]+'</td><td>'+objArray[i][col_key[20]]+'</td></tr>');*/
+				   var objArr_row ='';
+				   var row_obj = data[i];
+				   
+				   for(j=0;j<col_key.length;j++)
+				   {
+					   var row_val = row_obj[col_key[j]];
+					   objArr_row = objArr_row + '<td>'+row_val+'</td>';
+				   }
+				   $('#tableFilterBody').append('<tr><td><b>'+parseInt(i+1)+'</td>'+objArr_row+'</tr>');
+           }
+		    $('#divTableFilter').show();
+		
+		$('#tableFilter').excelTableFilter();
+
+    }
+
+	function showPredictedPlot(plot_path){
+		console.log('// plot path: //', plot_path)
+		$('#displayPredictPlot').html("");
+
+		var plot_path_name = plot_path.substr(7,);
+
+		d = new Date();
+        $('#displayPredictPlot').append('<h3 style="padding-top: 1%;">Forecast - </h3><img src="/'+plot_path_name+'?'+d.getTime()+'" class="img-responsive img-rounded">')
+
+	}
+
+    // convert blob to URL
+	function convert_blob_URL(response, type, filename){
+		var link= document.createElement('a');
+		var blob = new Blob([response], { type: type});
+		var URL = window.URL || window.webkitURL;
+		link.href= URL.createObjectURL(blob);
+		link.download=filename;
+		link.click();
+	}
+
+
+	// download latest prediction data in csv
+    function downloadPredictedCSV(){
+        console.log(' ==== Download CSV ===== ')
+		settings = requestObjectFunc(downloadPredictedCSVURL, "GET")
+        $.ajax(settings).done(function (response) {
+            console.log(response)
+			var filename = "predict_result.csv";
+			type = "text/csv" 
+			convert_blob_URL(response, type, filename)
+		})
+    }
+
+	//  button to download predicted file
+	 $('#buttonDownloadPredictedCSV').click(function(){
+        downloadPredictedCSV()
+    })
+
 });

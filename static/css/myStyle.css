@@ -97,7 +97,7 @@
 
 .overflowDiv{
     /*height: 600px;*/
-    max-height: 650px;
+    max-height: 600px;
     overflow-y: auto;
 }
 
@@ -189,9 +189,15 @@ margin-right:0 !important;
 
 
 #buttonPrediction{
-    margin-left:1%;
 	background-color: black;
 	color:white;
+  margin-left:4%; border-radius: 20px;
+}
+
+#buttonDownloadPredictedCSV{
+  background-color: rgb(68, 69, 122);
+	color:white;
+  margin-left:3%; border-radius: 20px;
 }
 
 #buttonPreview{
@@ -268,4 +274,32 @@ body{
 
 .bg-warning {
   background-color: #ffe86c !important;
+}
+
+#form-box {
+  display: inline-block;
+  box-sizing: border-box;
+  margin: 2rem 0;
+  background: #b9bdeb91;
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+#btnSend {
+  background-color: rgba(121, 65, 65, 0.973);
+	color:white;
+  border-radius: 10px;
+}
+
+#displayPredictPlot {
+  background-color: #3e3633b7;
+  color: wheat;
+}
+
+
+
+select:focus,
+select:hover{
+    outline: none;
+    border: 1px solid rgba(0, 0, 0, 0.329);
 }
